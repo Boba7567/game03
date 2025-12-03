@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tube Panic - High Score</title>
+    <title>Tube Panic - Final Fix</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -44,540 +43,151 @@
             border-bottom: 1px solid var(--border-color);
             z-index: 100;
             flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            flex: 1;
-            letter-spacing: -0.5px;
-        }
-
-        #logo-icon {
-            color: var(--accent-color);
-            margin-right: 5px;
-            font-size: 24px;
-        }
+        .logo-area { display: flex; align-items: center; font-weight: bold; font-size: 1.1rem; flex: 1; letter-spacing: -0.5px; }
+        #logo-icon { color: var(--accent-color); margin-right: 5px; font-size: 24px; }
 
         .score-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
         }
+        .score-label { font-size: 8px; color: var(--text-sub); font-weight: bold; }
+        #score { font-size: 20px; font-weight: 900; color: var(--text-main); }
+        #best-score-display { font-size: 10px; color: #aaa; margin-top: 2px; font-weight: bold; }
 
-        .score-label {
-            font-size: 8px;
-            color: var(--text-sub);
-            font-weight: bold;
-        }
-
-        #score {
-            font-size: 20px;
-            font-weight: 900;
-            color: var(--text-main);
-        }
-
-        #best-score-display {
-            font-size: 10px;
-            color: #aaa;
-            margin-top: 2px;
-            font-weight: bold;
-        }
-
-        #life-display {
-            font-size: 14px;
-            letter-spacing: 2px;
-            flex: 1;
-            text-align: right;
-        }
+        #life-display { font-size: 14px; letter-spacing: 2px; flex: 1; text-align: right; }
 
         /* --- 動画エリア --- */
         #video-container {
-            width: 100%;
-            height: 240px;
-            background: #000;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
+            width: 100%; height: 240px; background: #000;
+            position: relative; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
         }
-
-        #video-thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-        }
-
+        #video-thumbnail { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
         .loading-spinner {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            z-index: 10;
+            position: absolute; width: 40px; height: 40px;
+            border: 4px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite; z-index: 10;
         }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
+        @keyframes spin { to { transform: rotate(360deg); } }
         #video-ui-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.3);
-            z-index: 20;
+            position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+            background: rgba(255,255,255,0.3); z-index: 20;
         }
-
-        #seek-bar {
-            width: 45%;
-            height: 100%;
-            background: var(--accent-color);
-        }
+        #seek-bar { width: 45%; height: 100%; background: var(--accent-color); }
 
         /* --- 情報エリア --- */
         #info-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            background: var(--bg-color);
-            padding: 15px;
-            position: relative;
+            flex-grow: 1; overflow-y: auto; background: var(--bg-color);
+            padding: 15px; position: relative;
         }
-
-        .video-title {
-            font-size: 18px;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .video-meta {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-bottom: 15px;
-        }
-
+        .video-title { font-size: 18px; margin-bottom: 8px; line-height: 1.4; font-weight: 600; color: var(--text-main);}
+        .video-meta { font-size: 12px; color: var(--text-sub); margin-bottom: 15px; }
         .action-bar {
-            display: flex;
-            justify-content: space-around;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 15px;
+            display: flex; justify-content: space-around;
+            padding-bottom: 15px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px;
         }
-
-        .action-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            color: var(--text-main);
-            gap: 6px;
-            cursor: pointer;
-        }
-
-        .action-icon {
-            font-size: 20px;
-            background: var(--hover-bg);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .comment-header {
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .comment {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #ddd;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .comment-body {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .user-name {
-            font-size: 11px;
-            color: var(--text-sub);
-            font-weight: bold;
-        }
-
-        .comment-text {
-            color: var(--text-main);
-            line-height: 1.3;
-        }
+        .action-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text-main); gap: 6px; cursor: pointer; }
+        .action-icon { font-size: 20px; background: var(--hover-bg); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;}
+        
+        .comment-header { font-weight: bold; margin-bottom: 15px; font-size: 14px; color: var(--text-main); }
+        .comment { display: flex; gap: 12px; margin-bottom: 20px; font-size: 13px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #ddd; flex-shrink: 0; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .comment-body { display: flex; flex-direction: column; gap: 4px; }
+        .user-name { font-size: 11px; color: var(--text-sub); font-weight: bold; }
+        .comment-text { color: var(--text-main); line-height: 1.3; }
 
         /* --- ゲームレイヤー --- */
         #game-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-            overflow: hidden;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1000; overflow: hidden;
         }
 
-        /* --- 広告ポップアップ --- */
-        .ad-popup {
-            position: absolute;
-            background: #fff;
-            color: #000;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+        /* --- ポップアップ (クラス名を変更して対策) --- */
+        .tp-item {
+            position: absolute; background: #fff; color: #000;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            pointer-events: auto; display: flex; flex-direction: column;
+            overflow: hidden; border-radius: 8px; border: 1px solid #ddd;
             animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        @keyframes popIn {
-            from {
-                transform: scale(0);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* 動き */
-        .move-float {
-            animation: float 2s ease-in-out infinite;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(0, 30px);
-            }
-        }
-
-        .move-shake {
-            animation: vibrate 0.15s linear infinite;
-        }
-
-        @keyframes vibrate {
-            0% {
-                transform: translate(0, 0);
-            }
-
-            25% {
-                transform: translate(3px, 3px);
-            }
-
-            50% {
-                transform: translate(-3px, 3px);
-            }
-
-            75% {
-                transform: translate(3px, -3px);
-            }
-
-            100% {
-                transform: translate(0, 0);
-            }
-        }
-
-        .move-orbit {
-            animation: orbit 4s linear infinite;
-        }
-
-        @keyframes orbit {
-            0% {
-                transform: translate(0, 0);
-            }
-
-            25% {
-                transform: translate(20px, 20px);
-            }
-
-            50% {
-                transform: translate(0, 40px);
-            }
-
-            75% {
-                transform: translate(-20px, 20px);
-            }
-
-            100% {
-                transform: translate(0, 0);
-            }
-        }
+        .move-float { animation: float 2s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translate(0,0);} 50%{transform:translate(0, 30px);} }
+        .move-shake { animation: vibrate 0.15s linear infinite; }
+        @keyframes vibrate { 0%{transform:translate(0,0);} 25%{transform:translate(3px,3px);} 50%{transform:translate(-3px,3px);} 75%{transform:translate(3px,-3px);} 100%{transform:translate(0,0);} }
+        .move-orbit { animation: orbit 4s linear infinite; }
+        @keyframes orbit { 0%{transform:translate(0,0);} 25%{transform:translate(20px,20px);} 50%{transform:translate(0,40px);} 75%{transform:translate(-20px,20px);} 100%{transform:translate(0,0);} }
 
         /* 閉じるボタン */
         .close-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            background: transparent;
-            color: #999;
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-end;
-            padding: 5px;
-            box-sizing: border-box;
-            cursor: pointer;
-            z-index: 9999;
-            font-size: 24px;
-            font-weight: bold;
-            line-height: 1;
+            position: absolute; top: 0; right: 0;
+            width: 40px; height: 40px;
+            background: transparent; color: #999;
+            display: flex; align-items: flex-start; justify-content: flex-end;
+            padding: 5px; box-sizing: border-box;
+            cursor: pointer; z-index: 9999; 
+            font-size: 24px; font-weight: bold; line-height: 1;
         }
+        .close-btn::after { content: '×'; }
+        .close-btn:active { color: #f00; transform: scale(1.2); }
 
-        .close-btn::after {
-            content: '×';
-        }
-
-        .close-btn:active {
-            color: #f00;
-            transform: scale(1.2);
-        }
-
-        .ad-banner {
-            width: 300px;
-            height: 80px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #eee;
-        }
-
-        .ad-banner img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            margin-right: 12px;
-            border-radius: 6px;
-        }
-
-        .ad-square {
-            width: 260px;
-            background: #fff;
-            border-radius: 8px;
-            border: 1px solid #eee;
-        }
-
-        .ad-square img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-        }
-
-        .ad-modal {
-            width: 280px;
-            background: #fff;
-            color: #333;
-            border: 2px solid gold;
-            text-align: center;
-            padding: 25px;
-            border-radius: 16px;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .ad-tag {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: #f1c40f;
-            color: #000;
-            font-size: 10px;
-            padding: 2px 6px;
-            font-weight: bold;
-            z-index: 5;
-            pointer-events: none;
-            border-bottom-right-radius: 4px;
-        }
+        /* タイプ別スタイル (名前を隠蔽) */
+        .tp-banner { width: 300px; height: 80px; background: #fff; display: flex; align-items: center; padding: 10px; box-sizing: border-box; border: 1px solid #eee;}
+        .tp-banner img { width: 60px; height: 60px; object-fit: cover; margin-right: 12px; border-radius: 6px; }
+        
+        .tp-square { width: 260px; background: #fff; border-radius: 8px; border: 1px solid #eee; }
+        .tp-square img { width: 100%; height: 140px; object-fit: cover; }
+        
+        .tp-modal { width: 280px; background: #fff; color: #333; border: 2px solid gold; text-align: center; padding: 25px; border-radius: 16px; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        
+        .tp-tag { position: absolute; top: 0; left: 0; background: #f1c40f; color: #000; font-size: 10px; padding: 2px 6px; font-weight: bold; z-index: 5; pointer-events: none; border-bottom-right-radius: 4px; }
 
         /* FAB (ボム) */
         #bomb-fab {
-            position: fixed;
-            bottom: 30px;
-            right: 20px;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: #f2f2f2;
-            color: #aaa;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 11px;
-            transition: all 0.3s;
+            position: fixed; bottom: 30px; right: 20px;
+            width: 72px; height: 72px; border-radius: 50%;
+            background: #f2f2f2; color: #aaa; border: 1px solid #ddd;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 11px; transition: all 0.3s;
             pointer-events: auto;
         }
-
         #bomb-fab.ready {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            color: white;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
-            animation: pulseBtn 1s infinite;
+            background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; cursor: pointer; border: none;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4); animation: pulseBtn 1s infinite;
         }
-
-        @keyframes pulseBtn {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.08);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        #bomb-icon {
-            font-size: 26px;
-            margin-bottom: 2px;
-        }
+        @keyframes pulseBtn { 0%{transform:scale(1);} 50%{transform:scale(1.08);} 100%{transform:scale(1);} }
+        #bomb-icon { font-size: 26px; margin-bottom: 2px; }
 
         /* スクリーン */
         .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.92);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            text-align: center;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.92); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #333; text-align: center; padding: 20px;
         }
-
         .btn-start {
-            background: var(--text-main);
-            color: white;
-            border: none;
-            padding: 15px 50px;
-            font-size: 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            margin-top: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: var(--text-main); color: white; border: none;
+            padding: 15px 50px; font-size: 20px; border-radius: 30px;
+            font-weight: bold; margin-top: 30px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        .hidden { display: none !important; }
 
-        .hidden {
-            display: none !important;
-        }
+        .click-fail { animation: shake 0.3s; border: 3px solid red !important; }
+        .flash-screen { animation: flash 0.5s; position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9000; pointer-events:none; }
+        @keyframes flash { 0%{opacity:1;} 100%{opacity:0;} }
 
-        .click-fail {
-            animation: shake 0.3s;
-            border: 3px solid red !important;
-        }
+        .new-record { color: #f1c40f; font-weight: bold; animation: pulseText 0.5s infinite alternate; }
+        @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-        .flash-screen {
-            animation: flash 0.5s;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 9000;
-            pointer-events: none;
-        }
-
-        @keyframes flash {
-            0% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-            }
-        }
-
-        /* 新記録演出 */
-        .new-record {
-            color: #f1c40f;
-            font-weight: bold;
-            animation: pulseText 0.5s infinite alternate;
-        }
-
-        @keyframes pulseText {
-            from {
-                transform: scale(1);
-            }
-
-            to {
-                transform: scale(1.1);
-            }
-        }
     </style>
 </head>
-
 <body>
 
     <header id="app-header">
@@ -593,45 +203,39 @@
     <div id="video-container">
         <img id="video-thumbnail" src="https://picsum.photos/800/450?grayscale" alt="thumb">
         <div class="loading-spinner"></div>
-        <div id="video-ui-overlay">
-            <div id="seek-bar"></div>
-        </div>
+        <div id="video-ui-overlay"><div id="seek-bar"></div></div>
     </div>
 
     <div id="info-area">
-        <div class="video-title">【緊急】広告の量が多すぎてスマホがクラッシュした件について (絶対に広告消して！)</div>
-        <div class="video-meta">123万 回視聴 • 2025/11/20</div>
-
+        <div class="video-title">【閲覧注意】広告の量が多すぎてスマホが熱くなった件について (絶対に押すな！)</div>
+        <div class="video-meta">250万 回視聴 • 2025/11/20</div>
+        
         <div class="action-bar">
-            <div class="action-item"><span class="action-icon">👍</span>1万</div>
+            <div class="action-item"><span class="action-icon">👍</span>12万</div>
             <div class="action-item"><span class="action-icon">👎</span>低評価</div>
             <div class="action-item"><span class="action-icon">↗️</span>共有</div>
-            <div class="action-item"><span class="action-icon">▶️</span>チャンネル登録</div>
+            <div class="action-item"><span class="action-icon">⬇️</span>保存</div>
         </div>
 
         <div class="comment-header">コメント 1,240件</div>
         <div class="comment-section" id="comment-list"></div>
-
+        
         <div style="margin-top:30px; border-top:1px solid var(--border-color); padding-top:15px;">
             <div class="comment-header">次の動画</div>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <div
-                    style="width:140px; height:80px; background:#ddd; flex-shrink:0; border-radius:8px; overflow:hidden;">
-                    <img src="https://picsum.photos/200/120?random=99"
-                        style="width:100%; height:100%; object-fit:cover;">
+                <div style="width:140px; height:80px; background:#ddd; flex-shrink:0; border-radius:8px; overflow:hidden;">
+                    <img src="https://picsum.photos/200/120?random=99" style="width:100%; height:100%; object-fit:cover;">
                 </div>
                 <div>
-                    <div
-                        style="font-size:14px; line-height:1.4; margin-bottom:4px; font-weight:500; color:var(--text-main);">
-                        絶対に笑ってはいけない広告選手権</div>
-                    <div style="font-size:12px; color:var(--text-sub);">Kaigai Douga<br>50万 回視聴</div>
+                    <div style="font-size:14px; line-height:1.4; margin-bottom:4px; font-weight:500; color:var(--text-main);">絶対に笑ってはいけない広告選手権</div>
+                    <div style="font-size:12px; color:var(--text-sub);">Tanaka Games<br>50万 回視聴</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="game-layer"></div>
-
+    
     <button id="bomb-fab" onclick="useBomb()">
         <span id="bomb-icon">💣</span>
         <span id="bomb-text">0%</span>
@@ -640,31 +244,26 @@
     <!-- スタート画面 -->
     <div id="start-screen" class="overlay">
         <h1 style="color: var(--accent-color); font-size: 3rem; margin: 0; letter-spacing: -2px;">Tube Panic</h1>
-        <p style="color: var(--text-sub); font-weight: bold;">広告を消しまくれ！</p>
-
-        <!-- ハイスコア表示 -->
+        <p style="color: var(--text-sub); font-weight: bold;">Score Attack Edition</p>
+        
         <div style="margin: 10px 0; font-size: 16px; font-weight: bold; color: var(--text-main);">
             🏆 BEST: <span id="start-best">0</span>
         </div>
-
-        <div
-            style="text-align:left; background: #fff; padding:20px; border-radius:12px; margin-top:20px; font-size:13px; max-width: 320px; line-height: 1.6; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <p
-                style="margin-bottom:10px; font-size:16px; border-bottom:1px solid #eee; padding-bottom:5px; text-align:center; color:var(--text-main);">
-                <b>🎮 遊び方</b></p>
-            <p>👆 <b>広告消去</b>：×ボタンをタップしまくれ！</p>
-            <p>❤️ <b>ライフ</b>：誤タップ5回でゲームオーバー!</p>
-            <p>☠️ <b>埋没</b>：画面が埋め尽くされてもゲームオーバー!</p>
-            <div
-                style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; display:flex; align-items:center; gap:10px; border:1px solid #eee;">
+        
+        <div style="text-align:left; background: #fff; padding:20px; border-radius:12px; margin-top:20px; font-size:13px; max-width: 320px; line-height: 1.6; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <p style="margin-bottom:10px; font-size:16px; border-bottom:1px solid #eee; padding-bottom:5px; text-align:center; color:var(--text-main);"><b>🎮 遊び方</b></p>
+            <p>👆 <b>広告を閉じる</b>：×ボタンをタップ！</p>
+            <p>❤️ <b>ライフ</b>：誤タップ5回でゲームオーバー。</p>
+            <p>☠️ <b>埋没</b>：画面が埋め尽くされても終了。</p>
+            <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-top:10px; display:flex; align-items:center; gap:10px; border:1px solid #eee;">
                 <div style="font-size:24px;">💣</div>
                 <div>
                     <b>必殺技 (右下)</b><br>
-                    <span style="color:#888;">100%で発動可能！<b style="color:#0072ff;">画面上の広告を全消去！</b></span>
+                    <span style="color:#888;">100%で発動可。<b style="color:#0072ff;">全消去！</b></span>
                 </div>
             </div>
         </div>
-
+        
         <button class="btn-start" onclick="startGame()">再生 (Play)</button>
     </div>
 
@@ -673,48 +272,55 @@
         <div style="font-size: 60px; margin-bottom: 10px;">💀</div>
         <h2 id="go-title" style="color:var(--text-main);">Playback Error</h2>
         <p id="go-reason" style="color:var(--text-sub);">System crashed.</p>
-
+        
         <div style="margin: 30px 0; text-align: center;">
-            <p
-                style="font-size: 14px; color: var(--text-sub); margin-bottom: 5px; font-weight:bold; letter-spacing:1px;">
-                TOTAL BLOCKED</p>
-            <div
-                style="font-size: 70px; font-weight: 900; color: var(--text-main); line-height: 1; letter-spacing:-3px;">
+            <p style="font-size: 14px; color: var(--text-sub); margin-bottom: 5px; font-weight:bold; letter-spacing:1px;">TOTAL BLOCKED</p>
+            <div style="font-size: 70px; font-weight: 900; color: var(--text-main); line-height: 1; letter-spacing:-3px;">
                 <span id="final-score">0</span>
             </div>
-            <!-- ハイスコア表示 -->
             <div style="margin-top: 10px; font-size: 16px; font-weight: bold; color: var(--text-sub);">
                 BEST: <span id="final-best">0</span>
                 <span id="new-record-label" class="new-record hidden" style="margin-left:10px;">NEW RECORD!</span>
             </div>
         </div>
-
-        <button class="btn-start" onclick="startGame()">再挑戦!</button>
+        
+        <button class="btn-start" onclick="startGame()">再挑戦</button>
     </div>
 
     <script>
-        // ハイスコア管理
+        // ハイスコア管理 (安全策追加)
         const HIGH_SCORE_KEY = 'tubePanicHighScore';
-        let highScore = localStorage.getItem(HIGH_SCORE_KEY) || 0;
+        let highScore = 0;
+        
+        // 起動時のlocalStorageエラーで止まらないようにtry-catchを追加
+        try {
+            highScore = localStorage.getItem(HIGH_SCORE_KEY) || 0;
+        } catch (e) {
+            console.warn('LocalStorage not available');
+        }
 
-        // UIへの反映
-        document.getElementById('start-best').innerText = highScore;
-        document.getElementById('best-score-display').innerText = `BEST: ${highScore}`;
+        // UIへの反映 (DOMがまだ無い場合のエラー防止)
+        window.addEventListener('DOMContentLoaded', () => {
+            const startBestEl = document.getElementById('start-best');
+            if(startBestEl) startBestEl.innerText = highScore;
+            
+            const bestScoreDisp = document.getElementById('best-score-display');
+            if(bestScoreDisp) bestScoreDisp.innerText = `BEST: ${highScore}`;
+        });
 
         const comments = [
-            { user: "白ずくめの組織", text: "広告多すぎてぴえん", img: 101 },
-            { user: "yoda", text: "Do or do not. There's no try", img: 102 },
-            { user: "きゃすばる兄", text: "見えるぞ！私にもバツボタンが見える！", img: 103 },
-            { user: "タロウ タナカ", text: "いちこめ", img: 104 }
+            { user: "User123", text: "広告多すぎて草", img: 101 },
+            { user: "GamerX", text: "100個超えると地獄", img: 102 },
+            { user: "AdHater", text: "×ボタンが見える...見えるぞ！", img: 103 },
+            { user: "NoobPlayer", text: "音量注意", img: 104 }
         ];
 
         const adsData = [
-            { type: 'banner', title: '激ヤセ習慣', desc: '1日1回飲むだけ!あなたなら絶対にできる!', btn: '詳細' },
-            { type: 'banner', title: '王道RPG', desc: '今ならガチャ100連無料!', btn: 'ダウンロード' },
-            { type: 'square', title: '【明日は我が身】', desc: 'このあと彼女に起こった信じられない結末とは！?', btn: '見る' },
-            { type: 'square', title: '投資の神様', desc: '元手ゼロから1億稼ぐ方法あなただけに教えます', btn: '今すぐ登録' },
-            { type: 'modal', title: 'WARNING', desc: 'System is overheating!System is overheating!System is overheating!', btn: 'FIX' },
-            { type: 'modal', title: '緊急事態', desc: '今すぐ$100万振り込まなければ、ご自宅へ伺います', btn: 'お支払い' }
+            { type: 'banner', title: '激ヤセ習慣', desc: '1日1回飲むだけ', btn:'詳細' },
+            { type: 'banner', title: '王道RPG', desc: '今ならガチャ100連', btn:'DL' },
+            { type: 'square', title: '【衝撃】', desc: 'このあと信じられない結末が！', btn:'見る' },
+            { type: 'square', title: '投資の神様', desc: '元手ゼロから1億稼ぐ', btn:'登録' },
+            { type: 'modal', title: 'WARNING', desc: 'System is overheating!', btn:'FIX' }
         ];
 
         let state = {
@@ -727,64 +333,74 @@
             loopId: null
         };
 
-        const gameLayer = document.getElementById('game-layer');
-        const scoreEl = document.getElementById('score');
-        const lifeEl = document.getElementById('life-display');
-        const bombBtn = document.getElementById('bomb-fab');
-        const bombText = document.getElementById('bomb-text');
-        const videoThumbnail = document.getElementById('video-thumbnail');
-        const commentList = document.getElementById('comment-list');
+        let gameLayer, scoreEl, lifeEl, bombBtn, bombText, videoThumbnail, commentList;
+
+        // DOM要素の取得もDOMContentLoaded内で行う
+        window.addEventListener('DOMContentLoaded', () => {
+            gameLayer = document.getElementById('game-layer');
+            scoreEl = document.getElementById('score');
+            lifeEl = document.getElementById('life-display');
+            bombBtn = document.getElementById('bomb-fab');
+            bombText = document.getElementById('bomb-text');
+            videoThumbnail = document.getElementById('video-thumbnail');
+            commentList = document.getElementById('comment-list');
+
+            if(commentList) {
+                comments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.innerHTML = `
+                        <div class="avatar"><img src="https://picsum.photos/id/${c.img}/50/50"></div>
+                        <div class="comment-body">
+                            <div class="user-name">${c.user} • 1時間前</div>
+                            <div class="comment-text">${c.text}</div>
+                        </div>
+                    `;
+                    commentList.appendChild(div);
+                });
+            }
+        });
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            const now = audioCtx.currentTime;
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
 
-            if (type === 'spawn') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(400, now);
-                gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'close') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now);
-                gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0, now + 0.1);
-                osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'damage') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now);
-                gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
-            } else if (type === 'bomb') {
-                osc.type = 'square'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(800, now + 0.5);
-                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.8);
-                osc.start(now); osc.stop(now + 0.8);
-            } else if (type === 'newrecord') {
-                // ファンファーレ風
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(523, now);
-                osc.frequency.setValueAtTime(659, now + 0.1);
-                osc.frequency.setValueAtTime(784, now + 0.2);
-                osc.frequency.setValueAtTime(1046, now + 0.3);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.6);
-                osc.start(now); osc.stop(now + 0.6);
+                if (type === 'spawn') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0, now+0.1);
+                    osc.start(now); osc.stop(now+0.1);
+                } else if (type === 'close') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0, now+0.1);
+                    osc.start(now); osc.stop(now+0.1);
+                } else if (type === 'damage') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now+0.3);
+                    osc.start(now); osc.stop(now+0.3);
+                } else if (type === 'bomb') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(800, now+0.5);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now+0.8);
+                    osc.start(now); osc.stop(now+0.8);
+                } else if (type === 'newrecord') {
+                    osc.type = 'triangle'; 
+                    osc.frequency.setValueAtTime(523, now); 
+                    osc.frequency.setValueAtTime(659, now+0.1); 
+                    osc.frequency.setValueAtTime(784, now+0.2); 
+                    osc.frequency.setValueAtTime(1046, now+0.3); 
+                    gain.gain.setValueAtTime(0.2, now); 
+                    gain.gain.linearRampToValueAtTime(0, now+0.6);
+                    osc.start(now); osc.stop(now+0.6);
+                }
+            } catch(e) {
+                console.log("Audio error", e);
             }
         }
-
-        comments.forEach(c => {
-            const div = document.createElement('div');
-            div.className = 'comment';
-            div.innerHTML = `
-                <div class="avatar"><img src="https://picsum.photos/id/${c.img}/50/50"></div>
-                <div class="comment-body">
-                    <div class="user-name">${c.user} • 1時間前</div>
-                    <div class="comment-text">${c.text}</div>
-                </div>
-            `;
-            commentList.appendChild(div);
-        });
 
         function startGame() {
             state.isPlaying = true;
@@ -792,13 +408,13 @@
             state.life = 5;
             state.bombGauge = 0;
             state.spawnRate = 1000;
-
+            
             gameLayer.innerHTML = '';
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('new-record-label').classList.add('hidden');
             videoThumbnail.src = `https://picsum.photos/800/450?random=${Date.now()}`;
-
+            
             updateUI();
             gameLoop();
         }
@@ -812,7 +428,7 @@
 
         function spawnAd() {
             if (gameLayer.children.length >= 12) {
-                gameOver("GAME OVER", "広告で埋め尽くされました...");
+                gameOver("MEMORY FULL", "広告で埋め尽くされました");
                 return;
             }
 
@@ -821,17 +437,19 @@
             const imgUrl = `https://picsum.photos/id/${rImg}/200/200`;
 
             const ad = document.createElement('div');
-
+            
+            // 動き
             let moveClass = '';
             if (state.score > 10 && Math.random() < 0.6) {
                 const moves = ['move-float', 'move-shake', 'move-orbit'];
                 moveClass = moves[Math.floor(Math.random() * moves.length)];
             }
 
+            // ★修正点: クラス名から 'ad-' を削除してブロッカー対策
             if (data.type === 'banner') {
-                ad.className = `ad-popup ad-banner ${moveClass}`;
+                ad.className = `tp-item tp-banner ${moveClass}`;
                 ad.innerHTML = `
-                    <div class="ad-tag">AD</div>
+                    <div class="tp-tag">PR</div>
                     <img src="${imgUrl}">
                     <div style="flex:1;">
                         <div style="font-weight:bold; font-size:12px;">${data.title}</div>
@@ -840,9 +458,9 @@
                     <div style="background:#007aff; color:white; font-size:10px; padding:3px 8px; border-radius:3px;">${data.btn}</div>
                 `;
             } else if (data.type === 'square') {
-                ad.className = `ad-popup ad-square ${moveClass}`;
+                ad.className = `tp-item tp-square ${moveClass}`;
                 ad.innerHTML = `
-                    <div class="ad-tag">VIDEO</div>
+                    <div class="tp-tag">VIDEO</div>
                     <img src="${imgUrl}">
                     <div style="padding:10px;">
                         <div style="font-weight:bold; font-size:13px; margin-bottom:5px;">${data.title}</div>
@@ -850,7 +468,7 @@
                     </div>
                 `;
             } else {
-                ad.className = `ad-popup ad-modal ${moveClass}`;
+                ad.className = `tp-item tp-modal ${moveClass}`;
                 ad.innerHTML = `
                     <div style="font-size:18px; font-weight:bold; color:gold; margin-bottom:10px;">${data.title}</div>
                     <div style="font-size:14px; margin-bottom:15px;">${data.desc}</div>
@@ -860,11 +478,11 @@
 
             const closeBtn = document.createElement('div');
             closeBtn.className = 'close-btn';
-            closeBtn.innerText = '';
-
+            closeBtn.innerText = ''; 
+            
             const handleClose = (e) => { e.preventDefault(); e.stopPropagation(); closeAd(ad); };
             closeBtn.addEventListener('mousedown', handleClose);
-            closeBtn.addEventListener('touchstart', handleClose, { passive: false });
+            closeBtn.addEventListener('touchstart', handleClose, {passive: false});
             ad.appendChild(closeBtn);
 
             const handleBody = (e) => {
@@ -913,21 +531,22 @@
             document.body.appendChild(flash);
             setTimeout(() => flash.remove(), 500);
 
-            const ads = document.querySelectorAll('.ad-popup');
+            // クラス名が変わったのでセレクタも変更
+            const ads = document.querySelectorAll('.tp-item');
             let count = 0;
             ads.forEach(ad => { ad.remove(); count++; });
             state.score += count;
             state.bombGauge = 0;
-
+            
             clearTimeout(state.loopId);
-            setTimeout(gameLoop, 2000);
+            setTimeout(gameLoop, 2000); 
             updateUI();
         }
 
         function updateUI() {
             scoreEl.innerText = state.score;
             let hearts = "";
-            for (let i = 0; i < 5; i++) hearts += i < state.life ? "❤️" : "💀";
+            for(let i=0; i<5; i++) hearts += i < state.life ? "❤️" : "💀";
             lifeEl.innerText = hearts;
 
             const pct = Math.floor((state.bombGauge / state.maxBomb) * 100);
@@ -946,11 +565,13 @@
             document.getElementById('go-title').innerText = title;
             document.getElementById('go-reason').innerText = reason;
             document.getElementById('final-score').innerText = state.score;
-
+            
             // ハイスコア更新判定
             if (state.score > highScore) {
                 highScore = state.score;
-                localStorage.setItem(HIGH_SCORE_KEY, highScore);
+                try {
+                    localStorage.setItem(HIGH_SCORE_KEY, highScore);
+                } catch(e) {}
                 document.getElementById('new-record-label').classList.remove('hidden');
                 playSound('newrecord');
             }
@@ -962,5 +583,4 @@
         }
     </script>
 </body>
-
 </html>
